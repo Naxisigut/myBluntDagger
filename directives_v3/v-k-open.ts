@@ -1,4 +1,7 @@
-/* dialog标签 监听Ctrl+K 控制dialog显隐 */
+
+/** dialog标签 Ctrl+K 快捷键打开
+ *  该指令应绑定在dialog标签
+ */
 const dialogKeyOpen: DirectiveObj = {
   name: 'k-open',
   directive:{

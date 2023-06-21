@@ -27,6 +27,12 @@
  */
 
 
+/** DirectiveObj
+ *  name: 注册指令名
+ *  directive: 指令代码
+ */
+
+
 import {Directive} from 'vue';
 type DirectiveObj = {
   name: string,
