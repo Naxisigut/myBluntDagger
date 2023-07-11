@@ -1,6 +1,6 @@
-/* v1.01 */
+/* v1.02 */
 
-import { zeroPadPre } from './index';
+import { zeroPadPre } from '@/utils';
 const hexPattern = /^#(?:[0-9a-fA-F]{3}){1,2}(?:[0-9a-fA-F]{2})?$/
 const rgbaPattern = /(rgb|rgba)\(([^)]+)\)/;
 
@@ -38,7 +38,7 @@ export class CColor{
   }
   public get rgba(){
     if(!this.rgbObj)return ''
-    return `rgba(${this.rgbObj.R}, ${this.rgbObj.G}, ${this.rgbObj.R}, ${this.opacity})`
+    return `rgba(${this.rgbObj.R}, ${this.rgbObj.G}, ${this.rgbObj.B}, ${this.opacity})`
   }
   public get hslObj(){
     if(!this.isValid || !this.rgbObj)return null
@@ -87,7 +87,7 @@ export class CColor{
           break;
         case 'hex':
           if(color.length === 9){ // 长度为9,说明提供了透明度。无透明度时默认为1
-            opacity = Math.round(parseInt(color.slice(6), 16) * 100 /255) / 100
+            opacity = Math.round(parseInt(color.slice(7), 16) * 100 /255) / 100
           }
           break;
         case 'rgba':
