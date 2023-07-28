@@ -1,4 +1,4 @@
-/* v1.02 */
+/* v1.03 */
 
 /* 获取min~max之间的随机整数 */
 export function getRandomNumber(min:number, max:number) {
@@ -75,6 +75,17 @@ export const sanitize2OneDot = (val: string) => val.replace('.','$#$').replace(/
  */
 export const sanitize2FirstMinus = (val: string) => val.replace(/(?<=.)-/g,'')
 
+/** 保留小数点后的固定位数
+ * 
+ * @param val 
+ * @param digits 要保留的位数 
+ * 
+ */
+export const sanitizeFixedDigits = (val: string, digits: number) => {
+  const reg = new RegExp(`(\\.\\d{${digits}})\\d+$`)
+  return val.replace(reg, '$1')
+}
+
 /** 限定字符串为非负整数
  * 
  * @param val 
@@ -113,14 +124,29 @@ export const toNumber = (val:string)=>{
   return `${isPositive ? '' : '-'}${sanitize2OneDot(sanitizeSequentialZero(positivePart))}`
 }
 
+type SanitizeOption = {
+  isMinusAllowed: boolean,
+  isDotAllowed: boolean,
+  digits?: number
+}
+
 /** 数字字符串的输入处理
  * 
  * @param val 
- * @param isMinusAllowed 是否允许负数
- * @param isDotAllowed 是否允许小数
- * @param isSeqZeroAllowed 是否允许最前连续0
+ * @param option 处理配置
+ * - isMinusAllowed 是否允许负数
+ * - isDotAllowed 是否允许小数
+ * - digits 保留位数，仅在允许小数时生效; 不填则默认保留任意位数
+ * @returns 
  */
-export const numSanitize = (val: string, isMinusAllowed: boolean = true, isDotAllowed: boolean = true, isSeqZeroAllowed: boolean = false)=>{
+export const numSanitize = (val: string, option: SanitizeOption)=>{
+// export const numSanitize = (val: string, isMinusAllowed: boolean = true, isDotAllowed: boolean = true, digits: number)=>{
+  let { isDotAllowed, isMinusAllowed, digits }  = option
+  if(digits){
+    digits = Math.max(1, digits)
+    digits = parseInt(digits.toString())
+  }
+
   // 过滤
   if(isDotAllowed && isMinusAllowed){
     val = sanitize2NumberMinusDot(val)
@@ -140,13 +166,15 @@ export const numSanitize = (val: string, isMinusAllowed: boolean = true, isDotAl
   val = val.startsWith('-') ? val.slice(1) : val
 
   // 处理字符串首连续0
-  if(!isSeqZeroAllowed){
-    val = sanitizeSequentialZero(val)
-  }
+  val = sanitizeSequentialZero(val)
 
   // 处理小数点
   if(isDotAllowed){
     val = sanitize2OneDot(val)
+    // 保留位数
+    if(digits){
+      val = sanitizeFixedDigits(val, digits)
+    }
   }
 
   // 还原负号
