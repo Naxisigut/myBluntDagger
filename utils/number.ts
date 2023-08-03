@@ -1,4 +1,4 @@
-/* v1.03 */
+/* v1.04 */
 
 /* 获取min~max之间的随机整数 */
 export function getRandomNumber(min:number, max:number) {
@@ -73,7 +73,10 @@ export const sanitize2OneDot = (val: string) => val.replace('.','$#$').replace(/
  * @param val 
  * @returns 
  */
-export const sanitize2FirstMinus = (val: string) => val.replace(/(?<=.)-/g,'')
+export const sanitize2FirstMinus = (val: string) => {
+  const regex = /^(-)|-/g; // 匹配开头的负号和其他负号
+  return val.replace(regex, '$1'); // 替换其他负号为空字符串，保留开头的负号
+}
 
 /** 保留小数点后的固定位数
  * 
