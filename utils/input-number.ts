@@ -159,3 +159,29 @@ export const numSanitize = (val: string | number, option: SanitizeOption = {})=>
   // 还原负号
   return `${isPositive ? '' : '-'}${val}`
 }
+
+
+export function iptNumFilter(val, option = {}){
+  function createCtx(source, option){
+    const ctx = {
+      source,
+      dotAllowed: false,
+      minusAllowed: false,
+      digits: 0,
+      
+      dot: false,
+      minus: false,
+      currentDigits: 0,
+      result: ''
+    }
+    ctx.dotAllowed = !!option.isDotAllowed
+    ctx.minusAllowed = !!option.isMinusAllowed
+    ctx.digits = option.digits
+    return ctx
+  }
+  const ctx = createCtx(val, option)
+  
+
+
+}
+
