@@ -1,0 +1,23 @@
+{
+  "name": "mybluntdagger",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000m\u0000y\u0000B\u0000l\u0000u\u0000n\u0000t\u0000D\u0000a\u0000g\u0000g\u0000e\u0000r\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "vitest": "^0.34.6"
+  },
+  "scripts": {
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Naxisigut/myBluntDagger.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Naxisigut/myBluntDagger/issues"
+  },
+  "homepage": "https://github.com/Naxisigut/myBluntDagger#readme"
+}
