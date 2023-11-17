@@ -1,5 +1,5 @@
 
-/* v1.05 20231116 */
+/* v1.06 20231117 */
 
 /** 只保留字符串内的数字
  * 
@@ -160,28 +160,119 @@ export const numSanitize = (val: string | number, option: SanitizeOption = {})=>
   return `${isPositive ? '' : '-'}${val}`
 }
 
-
-export function iptNumFilter(val, option = {}){
+const enum CharactorTypes{
+  DOT = 'dot',
+  MINUS = 'minus',
+  NUMBER = 'number',
+  OTHER = 'other'
+}
+export function iptNumFilter(val, option:SanitizeOption = {}){
   function createCtx(source, option){
+    let digits = option.digits === undefined ? Infinity : Math.floor(Math.max(1, option.digits))
     const ctx = {
       source,
-      dotAllowed: false,
-      minusAllowed: false,
-      digits: 0,
-      
+      dotAllowed: !!option.isDotAllowed,
+      minusAllowed: !!option.isMinusAllowed,
+      digits,
+
       dot: false,
       minus: false,
       currentDigits: 0,
-      result: ''
+      result: '',
+      shift(){ // 删除source首个字符并返回
+        const ch = ctx.source.slice(0, 1)
+        ctx.stepIn()
+        return ch
+      },
+      stepIn(){ // 删除source首个字符
+        ctx.source = ctx.source.slice(1)
+      },
+      resStart(ch){ // result是否以某字符开头
+        return ctx.result.startsWith(ch)
+      },
+      behead(){ // 删除result首个字符
+        ctx.result = ctx.result.slice(1)
+      },
+      expand(ch){ // 在result尾部加入字符
+        ctx.result += ch
+      },
+      postProcess(){
+        while(ctx.resStart('0') || ctx.resStart('-')){
+          ctx.behead()
+        }
+        if(ctx.resStart('.')){
+          ctx.result = `0${ctx.result}`
+        }
+        if(ctx.minus)ctx.result = `-${ctx.result}`
+      }
     }
-    ctx.dotAllowed = !!option.isDotAllowed
-    ctx.minusAllowed = !!option.isMinusAllowed
-    ctx.digits = option.digits
     return ctx
   }
+  // debugger
   const ctx = createCtx(val, option)
-  
+  while(!isEnd(ctx)){
+    const { ch, type } = getFirstChType(ctx)
+    switch (type) {
+      case CharactorTypes.DOT:
+        handleDot(ctx, ch)
+        break;
+      case CharactorTypes.NUMBER:
+        handleNumber(ctx, ch)
+        break;
+      case CharactorTypes.MINUS:
+        handleMinus(ctx, ch)
+        break;
+    
+      default:
+        break;
+    }
+  }
 
-
+  ctx.postProcess()
+  return ctx.result
 }
+
+function isEnd(ctx){
+  return ctx.source.length === 0 || ctx.currentDigits >= ctx.digits
+}
+function isEnough(ctx){
+  return ctx.dot && ctx.currentDigits >= ctx.digits
+}
+function getFirstChType(ctx){
+  const ch = ctx.shift()
+  let type = CharactorTypes.OTHER
+  if(/\d/.test(ch)){
+    type = CharactorTypes.NUMBER
+  }else if(ch === '.'){
+    type = CharactorTypes.DOT
+  }else if(ch === '-'){
+    type = CharactorTypes.MINUS
+  }
+  return{
+    ch,
+    type
+  }
+}
+function handleNumber(ctx: any, ch: string) {
+  if(!ctx.dot){
+    ctx.expand(ch)
+    return
+  }
+  if(!isEnough(ctx)){
+    ctx.expand(ch)
+    ctx.currentDigits++
+    return
+  }
+}
+function handleMinus(ctx: any, ch: string) {
+  if(!ctx.minusAllowed || ctx.minus)return
+  ctx.expand(ch)
+  ctx.minus = true
+}
+function handleDot(ctx: any, ch: string) {
+  if(!ctx.dotAllowed || ctx.dot)return
+  ctx.expand(ch)
+  ctx.dot = true
+}
+
 

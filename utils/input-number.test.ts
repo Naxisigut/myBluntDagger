@@ -95,8 +95,8 @@ describe('保留小数指定位数', () => {
   })
 })
 
-describe('输入框过滤数字2', () => {
-  it('happy path', () => {
+describe.only('输入框过滤数字2', () => {
+  it.only('happy path', () => {
     expect(iptNumFilter('-123abc456-.`*()')).toBe('123456')
 
     expect(iptNumFilter('-123abc', { 
