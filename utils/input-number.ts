@@ -166,7 +166,7 @@ const enum CharactorTypes{
   NUMBER = 'number',
   OTHER = 'other'
 }
-export function iptNumFilter(val, option:SanitizeOption = {}){
+export function iptNumFilter(val: string, option: SanitizeOption = {}){
   function createCtx(source, option){
     let digits = option.digits === undefined ? Infinity : Math.floor(Math.max(1, option.digits))
     const ctx = {
@@ -208,8 +208,51 @@ export function iptNumFilter(val, option:SanitizeOption = {}){
     }
     return ctx
   }
+  function isEnd(ctx){
+    return ctx.source.length === 0 || ctx.currentDigits >= ctx.digits
+  }
+  function isEnough(ctx){
+    return ctx.dot && ctx.currentDigits >= ctx.digits
+  }
+  function getFirstChType(ctx){
+    const ch = ctx.shift()
+    let type = CharactorTypes.OTHER
+    if(/\d/.test(ch)){
+      type = CharactorTypes.NUMBER
+    }else if(ch === '.'){
+      type = CharactorTypes.DOT
+    }else if(ch === '-'){
+      type = CharactorTypes.MINUS
+    }
+    return{
+      ch,
+      type
+    }
+  }
+  function handleNumber(ctx: any, ch: string) {
+    if(!ctx.dot){
+      ctx.expand(ch)
+      return
+    }
+    if(!isEnough(ctx)){
+      ctx.expand(ch)
+      ctx.currentDigits++
+      return
+    }
+  }
+  function handleMinus(ctx: any, ch: string) {
+    if(!ctx.minusAllowed || ctx.minus)return
+    ctx.expand(ch)
+    ctx.minus = true
+  }
+  function handleDot(ctx: any, ch: string) {
+    if(!ctx.dotAllowed || ctx.dot)return
+    ctx.expand(ch)
+    ctx.dot = true
+  }
   // debugger
   const ctx = createCtx(val, option)
+
   while(!isEnd(ctx)){
     const { ch, type } = getFirstChType(ctx)
     switch (type) {
@@ -232,47 +275,53 @@ export function iptNumFilter(val, option:SanitizeOption = {}){
   return ctx.result
 }
 
-function isEnd(ctx){
-  return ctx.source.length === 0 || ctx.currentDigits >= ctx.digits
-}
-function isEnough(ctx){
-  return ctx.dot && ctx.currentDigits >= ctx.digits
-}
-function getFirstChType(ctx){
-  const ch = ctx.shift()
-  let type = CharactorTypes.OTHER
-  if(/\d/.test(ch)){
-    type = CharactorTypes.NUMBER
-  }else if(ch === '.'){
-    type = CharactorTypes.DOT
-  }else if(ch === '-'){
-    type = CharactorTypes.MINUS
+
+export function filter(val: string, option: SanitizeOption = {}){
+  function createCtx(val: string, option: SanitizeOption = {}){
+    const ctx = {
+      source: val,
+      pointer: 0
+    }
+    return ctx
   }
-  return{
-    ch,
-    type
+
+  
+  function getFirstChType(ctx){
+    const ch = ctx.source[0]
+    let type = CharactorTypes.OTHER
+    if(/\d/.test(ch)){
+      type = CharactorTypes.NUMBER
+    }else if(ch === '.'){
+      type = CharactorTypes.DOT
+    }else if(ch === '-'){
+      type = CharactorTypes.MINUS
+    }
+    return{
+      ch,
+      type
+    }
   }
-}
-function handleNumber(ctx: any, ch: string) {
-  if(!ctx.dot){
-    ctx.expand(ch)
-    return
+  const ctx = createCtx(val, option)
+  while(ctx.pointer < ctx.source.length -1){
+    const { ch, type } = getFirstChType(ctx)
+    switch (type) {
+      case CharactorTypes.NUMBER:
+        ctx.pointer++
+        break;
+      case CharactorTypes.OTHER:
+        ctx.source = ctx.source.splice()
+        break;
+    
+      default:
+        break;
+    }
+    
   }
-  if(!isEnough(ctx)){
-    ctx.expand(ch)
-    ctx.currentDigits++
-    return
-  }
+
+
 }
-function handleMinus(ctx: any, ch: string) {
-  if(!ctx.minusAllowed || ctx.minus)return
-  ctx.expand(ch)
-  ctx.minus = true
-}
-function handleDot(ctx: any, ch: string) {
-  if(!ctx.dotAllowed || ctx.dot)return
-  ctx.expand(ch)
-  ctx.dot = true
-}
+
+
+
 
 

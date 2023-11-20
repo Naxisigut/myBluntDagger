@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { numSanitize, sanitizeFixedDigits, iptNumFilter } from './input-number';
+import { numSanitize, sanitizeFixedDigits, iptNumFilter , filter} from './input-number';
 
 
 describe('输入框过滤数字', () => {
@@ -95,7 +95,7 @@ describe('保留小数指定位数', () => {
   })
 })
 
-describe.only('输入框过滤数字2', () => {
+describe('输入框过滤数字2', () => {
   it.only('happy path', () => {
     expect(iptNumFilter('-123abc456-.`*()')).toBe('123456')
 
@@ -174,5 +174,87 @@ describe.only('输入框过滤数字2', () => {
       digits: 2
     })).toBe('-0.12')
   })
+  
+})
+
+describe.only('输入框过滤数字2', () => {
+  it.only('happy path', () => {
+    expect(filter('-123abc456-.`*()')).toBe('123456')
+
+    // expect(filter('-123abc', { 
+    //   isMinusAllowed: true, 
+    // })).toBe('-123')
+
+    // expect(filter('0.123', { 
+    //   isDotAllowed: true, 
+    // })).toBe('0.123')
+
+    // expect(filter('0.123', { 
+    //   isDotAllowed: true, 
+    //   digits: 2
+    // })).toBe('0.12')
+  })
+  
+  // it('normal edge case', () => {
+  //   expect(filter('0123')).toBe('123')
+
+  //   expect(filter('000123')).toBe('123')
+  // })
+
+  // it('minus edge case', () => {
+  //   expect(filter('--123', {
+  //     isMinusAllowed: true
+  //   })).toBe('-123')
+
+  //   expect(filter('--123--', {
+  //     isMinusAllowed: true
+  //   })).toBe('-123')
+  // })
+
+  // it('dot edge case', () => {
+  //   expect(filter('0..123', { 
+  //     isDotAllowed: true, 
+  //   })).toBe('0.123')
+
+  //   expect(filter('0..123..', { 
+  //     isDotAllowed: true, 
+  //   })).toBe('0.123')
+
+  //   expect(filter('.12', { 
+  //     isDotAllowed: true, 
+  //   })).toBe('0.12')
+
+  //   expect(filter('.', { 
+  //     isDotAllowed: true, 
+  //   })).toBe('0.')
+  // })
+
+  // it('digit edge case', () => {
+  //   expect(filter('0.123', { 
+  //     isDotAllowed: true, 
+  //     digits: 0
+  //   })).toBe('0.1')
+
+  //   expect(filter('0.123', { 
+  //     isDotAllowed: true, 
+  //     digits: -1
+  //   })).toBe('0.1')
+  // })
+
+  // it('compound edge case', () => {
+  //   expect(filter('--00123', {
+  //     isMinusAllowed: true
+  //   })).toBe('-123')
+
+  //   expect(filter('00..123', { 
+  //     isDotAllowed: true, 
+  //   })).toBe('0.123')
+
+  //   expect(filter('--00..1..23--', { 
+  //     isMinusAllowed: true,
+  //     isDotAllowed: true, 
+  //     digits: 2
+  //   })).toBe('-0.12')
+  // })
   
 })
