@@ -166,6 +166,12 @@ const enum CharactorTypes{
   NUMBER = 'number',
   OTHER = 'other'
 }
+const enum commandTypes{
+  KEEP = 1,
+  DELETE = 2,
+  DELETE_PREV_ONE = 3,
+  DELETE_NEXT_ALL = 4
+}
 export function iptNumFilter(val: string, option: SanitizeOption = {}){
   function createCtx(source, option){
     let digits = option.digits === undefined ? Infinity : Math.floor(Math.max(1, option.digits))
@@ -276,18 +282,59 @@ export function iptNumFilter(val: string, option: SanitizeOption = {}){
 }
 
 
-export function filter(val: string, option: SanitizeOption = {}){
-  function createCtx(val: string, option: SanitizeOption = {}){
+export function filter(val: string, option?: SanitizeOption){
+  function genOption(option: SanitizeOption = {}){
+    const newOption: SanitizeOption = {
+      digits: option.digits === undefined ? Infinity : Math.floor(Math.max(1, option.digits)),
+      isDotAllowed: !!option.isDotAllowed,
+      isMinusAllowed: !!option.isMinusAllowed
+    }
+    return newOption
+  }
+  function createCtx(val: string, option?: SanitizeOption){
+    const newOption = genOption(option)
+    // 操作: 删除 保留 删除前一个字符
     const ctx = {
       source: val,
-      pointer: 0
+      option: newOption,
+      pointer: 0,
+      dotIndex: -1,
+      delete(targetIndex: number){
+        const endIndex = ctx.source.length
+        ctx.source = ctx.source.slice(0, targetIndex) + ctx.source.slice(targetIndex + 1, endIndex)
+      },
+      cross(){
+        ctx.pointer++
+      },
+      isNegative(){
+        return ctx.option.isMinusAllowed && ctx.source[0] === '-'
+      },
+      isDotted(){
+        return ctx.dotIndex !== -1 
+      },
+      excute(command){
+        switch (command) {
+          case commandTypes.DELETE:
+            ctx.delete(ctx.pointer)
+            break;
+          case commandTypes.DELETE_PREV_ONE:
+            ctx.delete(ctx.pointer - 1)
+            break;
+          case commandTypes.KEEP:
+            ctx.cross()
+            break;
+        
+          default:
+            break;
+        }
+      }
     }
     return ctx
   }
 
   
-  function getFirstChType(ctx){
-    const ch = ctx.source[0]
+  function getChType(ctx, index){
+    const ch = ctx.source[index]
     let type = CharactorTypes.OTHER
     if(/\d/.test(ch)){
       type = CharactorTypes.NUMBER
@@ -301,24 +348,147 @@ export function filter(val: string, option: SanitizeOption = {}){
       type
     }
   }
+  function getMinusCommand(ctx){
+    const { option: { isMinusAllowed } } = ctx
+    if(!isMinusAllowed)return commandTypes.DELETE
+    if(ctx.pointer !== 0)return commandTypes.DELETE
+    return commandTypes.KEEP
+  }
+  function handleMinus(ctx){
+    const { option: { isMinusAllowed } } = ctx
+    if(isMinusAllowed && ctx.pointer === 0){
+      ctx.cross()
+    }else{
+      ctx.delete(ctx.pointer)
+    }
+  }
+  function getDotCommand(ctx){
+    const { option: { isDotAllowed } } = ctx
+
+    if(!isDotAllowed)return commandTypes.DELETE
+    if(ctx.isDotted())return commandTypes.DELETE
+    if(ctx.pointer === 0)return commandTypes.DELETE
+
+    ctx.dotIndex = ctx.pointer
+    return commandTypes.KEEP
+  }
+  function handleDot(ctx){
+    const { option: { isDotAllowed } } = ctx
+    const prevChType = getChType(ctx, ctx.pointer -1).type
+    if(isDotAllowed && !ctx.isDotted() && ctx.pointer !== 0){
+      ctx.dotIndex = ctx.pointer
+      ctx.cross()
+    }else{
+      ctx.delete(ctx.pointer)
+    }
+  }
+  function getNumCommand(ctx, ch){
+    const { option: {isDotAllowed, digits}} = ctx
+    // 小数 整数部分 0的处理 和下面普通数字一样
+    //              普通数字的处理
+    // 小数 小数部分 0的处理和下面普通数字一样 位数
+    //              普通数字的处理
+    // 整数 0的处理
+    //      普通数字的处理
+    if(isDotAllowed){
+      if(!ctx.isDotted()){ // 小数-整数部分的数字
+        if(ctx.pointer === 1 && ctx.source.startsWith('0')){ // 正数中，最前为0且继续输入数字时，这个0是多余的
+          return commandTypes.DELETE_PREV_ONE
+        }
+        if(ctx.pointer === 2 && ctx.source.startsWith('-0')){ // 负数中, 第2位是0且继续输入数字时，这个0是多余的
+          return commandTypes.DELETE_PREV_ONE
+        }
+      }else{ // 小数-小数部分处理
+        const currDigits = ctx.pointer - ctx.dotIndex
+        if(currDigits > digits){ // 超出限定小数位数
+          return commandTypes.DELETE
+        }
+      }
+    }else{
+      if(ch === '0'){ // 整数-0的处理
+        if(ctx.pointer === 0){ // 最前的0 一定是多余的
+          return commandTypes.DELETE
+        }
+        if(ctx.pointer === 1 && ctx.source.startsWith('-')){ // 负数中处在第二位的0 是多余的
+          return commandTypes.DELETE
+        }
+      }
+    }
+    return commandTypes.KEEP
+
+  }
+  function handleNumber(ctx, ch){
+    const { option: {isDotAllowed, digits}} = ctx
+    // 小数 整数部分 0的处理 和下面普通数字一样
+    //              普通数字的处理
+    // 小数 小数部分 0的处理和下面普通数字一样 位数
+    //              普通数字的处理
+    // 整数 0的处理
+    //      普通数字的处理
+    if(isDotAllowed){
+      if(!ctx.isDotted()){ // 小数-整数部分处理
+        if(ctx.pointer === 1 && ctx.source.startsWith('0')){ // 正数中，最前为0且继续输入数字时，这个0是多余的
+          ctx.delete(ctx.pointer - 1)
+        }else if(ctx.pointer === 2 && ctx.source.startsWith('-0')){ // 负数中, 第2位是0且继续输入数字时，这个0是多余的
+          ctx.delete(ctx.pointer - 1)
+        }else{
+          ctx.cross()
+        }
+      }else{ // 小数-小数部分处理
+        const currDigits = ctx.pointer - ctx.dotIndex
+        // digits为undefined时，不删除
+        if(currDigits > digits){ // 超出限定小数位数
+          ctx.delete(ctx.pointer)
+        }else{
+          ctx.cross()
+        }
+      }
+    }else{
+      if(ch === '0'){
+        // 整数-0的处理
+        if(ctx.pointer === 0){ // 最前的0 一定是多余的
+          ctx.delete(ctx.pointer)
+        }else if(ctx.pointer === 1 && ctx.source.startsWith('-')){ // 负数中开头的0 是多余的
+          ctx.delete(ctx.pointer)
+        }else{
+          ctx.cross()
+        }
+      }else{
+        // 整数-普通数字的处理
+        ctx.cross()
+      }
+    }
+
+  }
+
   const ctx = createCtx(val, option)
-  while(ctx.pointer < ctx.source.length -1){
-    const { ch, type } = getFirstChType(ctx)
+  while(ctx.pointer < ctx.source.length){
+    debugger
+    const { ch, type } = getChType(ctx, ctx.pointer)
+    let command
     switch (type) {
       case CharactorTypes.NUMBER:
-        ctx.pointer++
+        // handleNumber(ctx, ch)
+        command = getNumCommand(ctx, ch)
         break;
-      case CharactorTypes.OTHER:
-        ctx.source = ctx.source.splice()
+      case CharactorTypes.MINUS:
+        command = getMinusCommand(ctx)
+        // handleMinus(ctx)
         break;
-    
-      default:
+      case CharactorTypes.DOT:
+      command = getDotCommand(ctx)
+        // handleDot(ctx)
+        break;
+      default: // CharactorTypes.Other
+        command = commandTypes.DELETE
         break;
     }
+
+    ctx.excute(command)
     
   }
 
-
+  return ctx.source
 }
 
 
