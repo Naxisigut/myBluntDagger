@@ -306,6 +306,9 @@ export function filter(val: string, option?: SanitizeOption){
       cross(){
         ctx.pointer++
       },
+      docking(index){ // 不包含index对应的值
+        ctx.source = ctx.source.slice(0, index)
+      },
       isNegative(){
         return ctx.option.isMinusAllowed && ctx.source[0] === '-'
       },
@@ -319,6 +322,9 @@ export function filter(val: string, option?: SanitizeOption){
             break;
           case commandTypes.DELETE_PREV_ONE:
             ctx.delete(ctx.pointer - 1)
+            break;
+          case commandTypes.DELETE_NEXT_ALL:
+            ctx.delete(0, ctx.pointer + 1)
             break;
           case commandTypes.KEEP:
             ctx.cross()
@@ -350,17 +356,10 @@ export function filter(val: string, option?: SanitizeOption){
   }
   function getMinusCommand(ctx){
     const { option: { isMinusAllowed } } = ctx
+
     if(!isMinusAllowed)return commandTypes.DELETE
     if(ctx.pointer !== 0)return commandTypes.DELETE
     return commandTypes.KEEP
-  }
-  function handleMinus(ctx){
-    const { option: { isMinusAllowed } } = ctx
-    if(isMinusAllowed && ctx.pointer === 0){
-      ctx.cross()
-    }else{
-      ctx.delete(ctx.pointer)
-    }
   }
   function getDotCommand(ctx){
     const { option: { isDotAllowed } } = ctx
@@ -371,16 +370,6 @@ export function filter(val: string, option?: SanitizeOption){
 
     ctx.dotIndex = ctx.pointer
     return commandTypes.KEEP
-  }
-  function handleDot(ctx){
-    const { option: { isDotAllowed } } = ctx
-    const prevChType = getChType(ctx, ctx.pointer -1).type
-    if(isDotAllowed && !ctx.isDotted() && ctx.pointer !== 0){
-      ctx.dotIndex = ctx.pointer
-      ctx.cross()
-    }else{
-      ctx.delete(ctx.pointer)
-    }
   }
   function getNumCommand(ctx, ch){
     const { option: {isDotAllowed, digits}} = ctx
@@ -400,8 +389,11 @@ export function filter(val: string, option?: SanitizeOption){
         }
       }else{ // 小数-小数部分处理
         const currDigits = ctx.pointer - ctx.dotIndex
-        if(currDigits > digits){ // 超出限定小数位数
-          return commandTypes.DELETE
+        // if(currDigits > digits){ // 超出限定小数位数
+        //   return commandTypes.DELETE
+        // }
+        if(currDigits === digits){
+          return commandTypes.DELETE_NEXT_ALL
         }
       }
     }else{
@@ -417,49 +409,6 @@ export function filter(val: string, option?: SanitizeOption){
     return commandTypes.KEEP
 
   }
-  function handleNumber(ctx, ch){
-    const { option: {isDotAllowed, digits}} = ctx
-    // 小数 整数部分 0的处理 和下面普通数字一样
-    //              普通数字的处理
-    // 小数 小数部分 0的处理和下面普通数字一样 位数
-    //              普通数字的处理
-    // 整数 0的处理
-    //      普通数字的处理
-    if(isDotAllowed){
-      if(!ctx.isDotted()){ // 小数-整数部分处理
-        if(ctx.pointer === 1 && ctx.source.startsWith('0')){ // 正数中，最前为0且继续输入数字时，这个0是多余的
-          ctx.delete(ctx.pointer - 1)
-        }else if(ctx.pointer === 2 && ctx.source.startsWith('-0')){ // 负数中, 第2位是0且继续输入数字时，这个0是多余的
-          ctx.delete(ctx.pointer - 1)
-        }else{
-          ctx.cross()
-        }
-      }else{ // 小数-小数部分处理
-        const currDigits = ctx.pointer - ctx.dotIndex
-        // digits为undefined时，不删除
-        if(currDigits > digits){ // 超出限定小数位数
-          ctx.delete(ctx.pointer)
-        }else{
-          ctx.cross()
-        }
-      }
-    }else{
-      if(ch === '0'){
-        // 整数-0的处理
-        if(ctx.pointer === 0){ // 最前的0 一定是多余的
-          ctx.delete(ctx.pointer)
-        }else if(ctx.pointer === 1 && ctx.source.startsWith('-')){ // 负数中开头的0 是多余的
-          ctx.delete(ctx.pointer)
-        }else{
-          ctx.cross()
-        }
-      }else{
-        // 整数-普通数字的处理
-        ctx.cross()
-      }
-    }
-
-  }
 
   const ctx = createCtx(val, option)
   while(ctx.pointer < ctx.source.length){
@@ -468,16 +417,13 @@ export function filter(val: string, option?: SanitizeOption){
     let command
     switch (type) {
       case CharactorTypes.NUMBER:
-        // handleNumber(ctx, ch)
         command = getNumCommand(ctx, ch)
         break;
       case CharactorTypes.MINUS:
         command = getMinusCommand(ctx)
-        // handleMinus(ctx)
         break;
       case CharactorTypes.DOT:
-      command = getDotCommand(ctx)
-        // handleDot(ctx)
+        command = getDotCommand(ctx)
         break;
       default: // CharactorTypes.Other
         command = commandTypes.DELETE
