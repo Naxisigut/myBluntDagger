@@ -324,7 +324,8 @@ export function filter(val: string, option?: SanitizeOption){
             ctx.delete(ctx.pointer - 1)
             break;
           case commandTypes.DELETE_NEXT_ALL:
-            ctx.delete(0, ctx.pointer + 1)
+            ctx.docking(ctx.pointer + 1)
+            ctx.pointer = ctx.source.length
             break;
           case commandTypes.KEEP:
             ctx.cross()
@@ -371,39 +372,31 @@ export function filter(val: string, option?: SanitizeOption){
     ctx.dotIndex = ctx.pointer
     return commandTypes.KEEP
   }
-  function getNumCommand(ctx, ch){
+  function getNumCommand(ctx){
     const { option: {isDotAllowed, digits}} = ctx
-    // 小数 整数部分 0的处理 和下面普通数字一样
-    //              普通数字的处理
-    // 小数 小数部分 0的处理和下面普通数字一样 位数
-    //              普通数字的处理
-    // 整数 0的处理
-    //      普通数字的处理
-    if(isDotAllowed){
-      if(!ctx.isDotted()){ // 小数-整数部分的数字
-        if(ctx.pointer === 1 && ctx.source.startsWith('0')){ // 正数中，最前为0且继续输入数字时，这个0是多余的
-          return commandTypes.DELETE_PREV_ONE
-        }
-        if(ctx.pointer === 2 && ctx.source.startsWith('-0')){ // 负数中, 第2位是0且继续输入数字时，这个0是多余的
-          return commandTypes.DELETE_PREV_ONE
-        }
-      }else{ // 小数-小数部分处理
-        const currDigits = ctx.pointer - ctx.dotIndex
-        // if(currDigits > digits){ // 超出限定小数位数
-        //   return commandTypes.DELETE
-        // }
-        if(currDigits === digits){
-          return commandTypes.DELETE_NEXT_ALL
-        }
+    // 小数-整数部分: 去除前置的0
+    // 小数-小数部分: 满足位数限制
+    // 整数: 去除前置的0
+
+    
+    // 小数-小数部分处理
+    if(isDotAllowed && ctx.isDotted()){ 
+      const currDigits = ctx.pointer - ctx.dotIndex
+      if(currDigits === digits){
+        return commandTypes.DELETE_NEXT_ALL
       }
-    }else{
-      if(ch === '0'){ // 整数-0的处理
-        if(ctx.pointer === 0){ // 最前的0 一定是多余的
-          return commandTypes.DELETE
-        }
-        if(ctx.pointer === 1 && ctx.source.startsWith('-')){ // 负数中处在第二位的0 是多余的
-          return commandTypes.DELETE
-        }
+    }
+    
+    // 整数 或 小数-整数部分
+    else{ 
+      // 正数中，最前为0且继续输入数字时，这个0是多余的
+      if(ctx.pointer === 1 && ctx.source.startsWith('0')){ // 01 => 1
+        return commandTypes.DELETE_PREV_ONE
+      }
+
+      // 负数中, 第2位是0且继续输入数字时，这个0是多余的
+      if(ctx.pointer === 2 && ctx.source.startsWith('-0')){ // -01 => -1
+        return commandTypes.DELETE_PREV_ONE
       }
     }
     return commandTypes.KEEP
@@ -412,12 +405,12 @@ export function filter(val: string, option?: SanitizeOption){
 
   const ctx = createCtx(val, option)
   while(ctx.pointer < ctx.source.length){
-    debugger
-    const { ch, type } = getChType(ctx, ctx.pointer)
+    // debugger
+    const { type } = getChType(ctx, ctx.pointer)
     let command
     switch (type) {
       case CharactorTypes.NUMBER:
-        command = getNumCommand(ctx, ch)
+        command = getNumCommand(ctx)
         break;
       case CharactorTypes.MINUS:
         command = getMinusCommand(ctx)
@@ -425,6 +418,7 @@ export function filter(val: string, option?: SanitizeOption){
       case CharactorTypes.DOT:
         command = getDotCommand(ctx)
         break;
+
       default: // CharactorTypes.Other
         command = commandTypes.DELETE
         break;

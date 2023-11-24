@@ -179,15 +179,15 @@ describe('输入框过滤数字2', () => {
 
 describe.only('输入框过滤数字3', () => {
   it('happy path', () => {
-    // expect(filter('-123abc456-.`*()')).toBe('123456')
+    expect(filter('-123abc456-.`*()')).toBe('123456')
 
-    // expect(filter('-123abc', { 
-    //   isMinusAllowed: true, 
-    // })).toBe('-123')
+    expect(filter('-123abc', { 
+      isMinusAllowed: true, 
+    })).toBe('-123')
 
-    // expect(filter('0.123', { 
-    //   isDotAllowed: true, 
-    // })).toBe('0.123')
+    expect(filter('0.123', { 
+      isDotAllowed: true, 
+    })).toBe('0.123')
 
     expect(filter('0.123', { 
       isDotAllowed: true, 
@@ -195,84 +195,84 @@ describe.only('输入框过滤数字3', () => {
     })).toBe('0.12')
   })
   
-  // it('normal edge case', () => {
-  //   expect(filter('0123')).toBe('123')
+  it('normal edge case', () => {
+    expect(filter('0123')).toBe('123')
 
-  //   expect(filter('000123')).toBe('123')
-  // })
+    expect(filter('000123')).toBe('123')
+  })
 
-  // it('minus edge case', () => {
-  //   expect(filter('--123', {
-  //     isMinusAllowed: true
-  //   })).toBe('-123')
+  it('minus edge case', () => {
+    expect(filter('--123', {
+      isMinusAllowed: true
+    })).toBe('-123')
 
-  //   expect(filter('--123--', {
-  //     isMinusAllowed: true
-  //   })).toBe('-123')
-  // })
+    expect(filter('--123--', {
+      isMinusAllowed: true
+    })).toBe('-123')
+  })
 
-  // it('dot edge case', () => {
-  //   expect(filter('0..123', { 
-  //     isDotAllowed: true, 
-  //   })).toBe('0.123')
+  it('dot edge case', () => {
+    expect(filter('0..123', { 
+      isDotAllowed: true, 
+    })).toBe('0.123')
 
-  //   expect(filter('0..123..', { 
-  //     isDotAllowed: true, 
-  //   })).toBe('0.123')
+    expect(filter('0..123..', { 
+      isDotAllowed: true, 
+    })).toBe('0.123')
 
-  //   expect(filter('.12', { 
-  //     isDotAllowed: true, 
-  //   })).toBe('12') // 不允许首位直接输入小数点
+    expect(filter('.12', { 
+      isDotAllowed: true, 
+    })).toBe('12') // 不允许首位直接输入小数点
 
-  //   expect(filter('.', { 
-  //     isDotAllowed: true, 
-  //   })).toBe('')
-  // })
+    expect(filter('.', { 
+      isDotAllowed: true, 
+    })).toBe('')
+  })
 
-  // it('digit edge case', () => {
-  //   expect(filter('0.123', { 
-  //     isDotAllowed: true, 
-  //     digits: 0
-  //   })).toBe('0.1')
+  it('digit edge case', () => {
+    expect(filter('0.123', { 
+      isDotAllowed: true, 
+      digits: 0
+    })).toBe('0.1')
 
-  //   expect(filter('0.123', { 
-  //     isDotAllowed: true, 
-  //     digits: -1
-  //   })).toBe('0.1')
-  // })
+    expect(filter('0.123', { 
+      isDotAllowed: true, 
+      digits: -1
+    })).toBe('0.1')
+  })
 
-  // it('compound edge case', () => {
-  //   expect(filter('--00123', {
-  //     isMinusAllowed: true
-  //   })).toBe('-123')
+  it('compound edge case', () => {
+    expect(filter('--00123', {
+      isMinusAllowed: true
+    })).toBe('-123')
 
-  //   expect(filter('00..123', { 
-  //     isDotAllowed: true, 
-  //   })).toBe('0.123')
+    expect(filter('00..123', { 
+      isDotAllowed: true, 
+    })).toBe('0.123')
 
-  //   expect(filter('--00..1..23--', { 
-  //     isMinusAllowed: true,
-  //     isDotAllowed: true, 
-  //     digits: 2
-  //   })).toBe('-0.12')
+    expect(filter('--00..1..23--', { 
+      isMinusAllowed: true,
+      isDotAllowed: true, 
+      digits: 2
+    })).toBe('-0.12')
 
-  //   expect(filter('000.23', { 
-  //     isMinusAllowed: true,
-  //     isDotAllowed: true, 
-  //     digits: 2
-  //   })).toBe('0.23')
+    expect(filter('000.23', { 
+      isMinusAllowed: true,
+      isDotAllowed: true, 
+      digits: 2
+    })).toBe('0.23')
 
-  //   expect(filter('01.23', { 
-  //     isMinusAllowed: true,
-  //     isDotAllowed: true, 
-  //     digits: 2
-  //   })).toBe('1.23')
+    expect(filter('01.23', { 
+      isMinusAllowed: true,
+      isDotAllowed: true, 
+      digits: 2
+    })).toBe('1.23')
 
-  //   expect(filter('-001.23', { 
-  //     isMinusAllowed: true,
-  //     isDotAllowed: true, 
-  //     digits: 2
-  //   })).toBe('-1.23')
-  // })
+    expect(filter('-001.23', { 
+      isMinusAllowed: true,
+      isDotAllowed: true, 
+      digits: 2
+    })).toBe('-1.23')
+  })
   
 })
