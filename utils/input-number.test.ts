@@ -96,7 +96,7 @@ describe('保留小数指定位数', () => {
 })
 
 describe('输入框过滤数字2', () => {
-  it.only('happy path', () => {
+  it('happy path', () => {
     expect(iptNumFilter('-123abc456-.`*()')).toBe('123456')
 
     expect(iptNumFilter('-123abc', { 
@@ -177,7 +177,7 @@ describe('输入框过滤数字2', () => {
   
 })
 
-describe.only('输入框过滤数字3', () => {
+describe('输入框过滤数字3', () => {
   it('happy path', () => {
     expect(filter('-123abc456-.`*()')).toBe('123456')
 
@@ -276,3 +276,40 @@ describe.only('输入框过滤数字3', () => {
   })
   
 })
+
+describe.only('性能测试', ()=>{
+  const testStr = '--0012..0023afggb^&*(*()^*)--000'
+  const times = 100000
+  it('numSanitize', ()=>{
+    for (let index = 0; index < times; index++) {
+      const a = numSanitize(testStr, {
+        isDotAllowed: true,
+        isMinusAllowed: true,
+        digits: 3
+      })
+      // expect(a).toBe('-12.002')
+    }
+  })
+  it('iptNumFilter', ()=>{
+    for (let index = 0; index < times; index++) {
+      const a = iptNumFilter(testStr, {
+        isDotAllowed: true,
+        isMinusAllowed: true,
+        digits: 3
+      })
+      // expect(a).toBe('-12.002')
+    }
+  })
+  it('filter', ()=>{
+    for (let index = 0; index < times; index++) {
+      const a = filter(testStr, {
+        isDotAllowed: true,
+        isMinusAllowed: true,
+        digits: 3
+      })  
+      // expect(a).toBe('-12.002')
+    }
+  })
+})
+
+
