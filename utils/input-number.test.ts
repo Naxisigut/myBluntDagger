@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { numSanitize, sanitizeFixedDigits, iptNumFilter , filter} from './input-number';
+import { numSanitize, sanitizeFixedDigits, iptNumFilter_1 , iptNumFilter_2 } from './input-number';
 
 
 describe('输入框过滤数字', () => {
@@ -97,78 +97,78 @@ describe('保留小数指定位数', () => {
 
 describe('输入框过滤数字2', () => {
   it('happy path', () => {
-    expect(iptNumFilter('-123abc456-.`*()')).toBe('123456')
+    expect(iptNumFilter_1('-123abc456-.`*()')).toBe('123456')
 
-    expect(iptNumFilter('-123abc', { 
+    expect(iptNumFilter_1('-123abc', { 
       isMinusAllowed: true, 
     })).toBe('-123')
 
-    expect(iptNumFilter('0.123', { 
+    expect(iptNumFilter_1('0.123', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(iptNumFilter('0.123', { 
+    expect(iptNumFilter_1('0.123', { 
       isDotAllowed: true, 
       digits: 2
     })).toBe('0.12')
   })
   
   it('normal edge case', () => {
-    expect(iptNumFilter('0123')).toBe('123')
+    expect(iptNumFilter_1('0123')).toBe('123')
 
-    expect(iptNumFilter('000123')).toBe('123')
+    expect(iptNumFilter_1('000123')).toBe('123')
   })
 
   it('minus edge case', () => {
-    expect(iptNumFilter('--123', {
+    expect(iptNumFilter_1('--123', {
       isMinusAllowed: true
     })).toBe('-123')
 
-    expect(iptNumFilter('--123--', {
+    expect(iptNumFilter_1('--123--', {
       isMinusAllowed: true
     })).toBe('-123')
   })
 
   it('dot edge case', () => {
-    expect(iptNumFilter('0..123', { 
+    expect(iptNumFilter_1('0..123', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(iptNumFilter('0..123..', { 
+    expect(iptNumFilter_1('0..123..', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(iptNumFilter('.12', { 
+    expect(iptNumFilter_1('.12', { 
       isDotAllowed: true, 
     })).toBe('0.12')
 
-    expect(iptNumFilter('.', { 
+    expect(iptNumFilter_1('.', { 
       isDotAllowed: true, 
     })).toBe('0.')
   })
 
   it('digit edge case', () => {
-    expect(iptNumFilter('0.123', { 
+    expect(iptNumFilter_1('0.123', { 
       isDotAllowed: true, 
       digits: 0
     })).toBe('0.1')
 
-    expect(iptNumFilter('0.123', { 
+    expect(iptNumFilter_1('0.123', { 
       isDotAllowed: true, 
       digits: -1
     })).toBe('0.1')
   })
 
   it('compound edge case', () => {
-    expect(iptNumFilter('--00123', {
+    expect(iptNumFilter_1('--00123', {
       isMinusAllowed: true
     })).toBe('-123')
 
-    expect(iptNumFilter('00..123', { 
+    expect(iptNumFilter_1('00..123', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(iptNumFilter('--00..1..23--', { 
+    expect(iptNumFilter_1('--00..1..23--', { 
       isMinusAllowed: true,
       isDotAllowed: true, 
       digits: 2
@@ -179,96 +179,96 @@ describe('输入框过滤数字2', () => {
 
 describe('输入框过滤数字3', () => {
   it('happy path', () => {
-    expect(filter('-123abc456-.`*()')).toBe('123456')
+    expect(iptNumFilter_2('-123abc456-.`*()')).toBe('123456')
 
-    expect(filter('-123abc', { 
+    expect(iptNumFilter_2('-123abc', { 
       isMinusAllowed: true, 
     })).toBe('-123')
 
-    expect(filter('0.123', { 
+    expect(iptNumFilter_2('0.123', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(filter('0.123', { 
+    expect(iptNumFilter_2('0.123', { 
       isDotAllowed: true, 
       digits: 2
     })).toBe('0.12')
   })
   
   it('normal edge case', () => {
-    expect(filter('0123')).toBe('123')
+    expect(iptNumFilter_2('0123')).toBe('123')
 
-    expect(filter('000123')).toBe('123')
+    expect(iptNumFilter_2('000123')).toBe('123')
   })
 
   it('minus edge case', () => {
-    expect(filter('--123', {
+    expect(iptNumFilter_2('--123', {
       isMinusAllowed: true
     })).toBe('-123')
 
-    expect(filter('--123--', {
+    expect(iptNumFilter_2('--123--', {
       isMinusAllowed: true
     })).toBe('-123')
   })
 
   it('dot edge case', () => {
-    expect(filter('0..123', { 
+    expect(iptNumFilter_2('0..123', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(filter('0..123..', { 
+    expect(iptNumFilter_2('0..123..', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(filter('.12', { 
+    expect(iptNumFilter_2('.12', { 
       isDotAllowed: true, 
     })).toBe('12') // 不允许首位直接输入小数点
 
-    expect(filter('.', { 
+    expect(iptNumFilter_2('.', { 
       isDotAllowed: true, 
     })).toBe('')
   })
 
   it('digit edge case', () => {
-    expect(filter('0.123', { 
+    expect(iptNumFilter_2('0.123', { 
       isDotAllowed: true, 
       digits: 0
     })).toBe('0.1')
 
-    expect(filter('0.123', { 
+    expect(iptNumFilter_2('0.123', { 
       isDotAllowed: true, 
       digits: -1
     })).toBe('0.1')
   })
 
   it('compound edge case', () => {
-    expect(filter('--00123', {
+    expect(iptNumFilter_2('--00123', {
       isMinusAllowed: true
     })).toBe('-123')
 
-    expect(filter('00..123', { 
+    expect(iptNumFilter_2('00..123', { 
       isDotAllowed: true, 
     })).toBe('0.123')
 
-    expect(filter('--00..1..23--', { 
+    expect(iptNumFilter_2('--00..1..23--', { 
       isMinusAllowed: true,
       isDotAllowed: true, 
       digits: 2
     })).toBe('-0.12')
 
-    expect(filter('000.23', { 
+    expect(iptNumFilter_2('000.23', { 
       isMinusAllowed: true,
       isDotAllowed: true, 
       digits: 2
     })).toBe('0.23')
 
-    expect(filter('01.23', { 
+    expect(iptNumFilter_2('01.23', { 
       isMinusAllowed: true,
       isDotAllowed: true, 
       digits: 2
     })).toBe('1.23')
 
-    expect(filter('-001.23', { 
+    expect(iptNumFilter_2('-001.23', { 
       isMinusAllowed: true,
       isDotAllowed: true, 
       digits: 2
@@ -290,9 +290,9 @@ describe.only('性能测试', ()=>{
       // expect(a).toBe('-12.002')
     }
   })
-  it('iptNumFilter', ()=>{
+  it('iptNumFilter_1', ()=>{
     for (let index = 0; index < times; index++) {
-      const a = iptNumFilter(testStr, {
+      const a = iptNumFilter_1(testStr, {
         isDotAllowed: true,
         isMinusAllowed: true,
         digits: 3
@@ -302,7 +302,7 @@ describe.only('性能测试', ()=>{
   })
   it('filter', ()=>{
     for (let index = 0; index < times; index++) {
-      const a = filter(testStr, {
+      const a = iptNumFilter_2(testStr, {
         isDotAllowed: true,
         isMinusAllowed: true,
         digits: 3

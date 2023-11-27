@@ -172,7 +172,7 @@ const enum commandTypes{
   DELETE_PREV_ONE = 3,
   DELETE_NEXT_ALL = 4
 }
-export function iptNumFilter(val: string, option: SanitizeOption = {}){
+export function iptNumFilter_1(val: string, option: SanitizeOption = {}){
   function createCtx(source, option){
     let digits = option.digits === undefined ? Infinity : Math.floor(Math.max(1, option.digits))
     const ctx = {
@@ -282,7 +282,7 @@ export function iptNumFilter(val: string, option: SanitizeOption = {}){
 }
 
 
-export function filter(val: string, option?: SanitizeOption){
+export function iptNumFilter_2(val: string, option?: SanitizeOption){
   const ctx = createCtx(val, option)
   while(ctx.pointer < ctx.source.length){
     // debugger
@@ -327,14 +327,14 @@ function createCtx(val: string, option?: SanitizeOption){
     option: newOption,
     pointer: 0,
     dotIndex: -1,
-    delete(targetIndex: number){
+    delete(targetIndex: number){ // 删除指定位置的单个字符
       const endIndex = ctx.source.length
       ctx.source = ctx.source.slice(0, targetIndex) + ctx.source.slice(targetIndex + 1, endIndex)
     },
     cross(){
       ctx.pointer++
     },
-    docking(index){ // 不包含index对应的值
+    docking(index){ // 去除尾部，不包含index对应的值
       ctx.source = ctx.source.slice(0, index)
     },
     isNegative(){
