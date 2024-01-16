@@ -1,0 +1,246 @@
+/* 文件说明：2024.01.13 新增 仿TailwindCss */
+
+/* margin & padding */
+.m{
+  &-10{
+    margin: 20upx;
+  }
+
+  &x{
+    &-10{
+      margin: 0 20upx;
+    }
+  }
+  
+  &t{
+    &-10{
+      margin-top: 20upx;
+    }
+  }
+
+  &l{
+    &-2{
+      margin-left: 4upx;
+    }
+    &-20{
+      margin-left: 40upx;
+    }
+  }
+}
+.p {
+  &-10{
+    padding: 20upx;
+  }
+
+  &x{
+    &-10{
+      padding: 0 20upx;
+    }
+  }
+
+  &l{
+    &-10{
+      padding-left: 20upx;
+    }
+  }
+
+  &t{
+    &-10{
+      padding-top: 20upx;
+    }
+  }
+}
+
+/* weight & height */
+.w{
+  &-full{
+    width: 100%;
+  }
+}
+.h{
+  &-20{
+    height: 40upx;
+  }
+  &-30{
+    height: 60upx;
+  }
+  &-40{
+    height: 80upx;
+  }
+  &-250{
+    height: 500upx;
+  }
+  &-full{
+    height: 100%;
+  }
+}
+
+/* line-height */
+.leading{
+  &-20{
+    line-height: 40upx;
+  }
+  &-30{
+    line-height: 60upx;
+  }
+  &-40{
+    line-height: 80upx;
+  }
+}
+
+/* text */
+.text{
+  /* font-size */
+  &-10{
+    font-size: 20upx;
+  }
+  &-12{
+    font-size: 24upx;
+  }
+  &-14{
+    font-size: 28upx;
+  }
+  &-16{
+    font-size: 32upx;
+  }
+  &-18{
+    font-size: 36upx;
+  }
+  &-20{
+    font-size: 40upx;
+  }
+
+  /* color */
+  &-white{
+    color: #fff
+  }
+  &-primary{
+    color: #1b91fe
+  }
+
+  /* text-align */
+  &-center{
+    text-align: center;
+  }
+}
+
+/* font-weight */
+.text-bold{
+  font-weight: bold;
+}
+
+/* background-color */
+.bg-white{
+  background-color: #fff;
+}
+.bg-f2{
+  background-color: #f2f2f2;
+}
+.bg-primary{
+  background-color: #1b91fe;
+}
+
+/* border-radius */
+.rounded{
+  border-radius: 0.25rem;
+  &-full{
+    border-radius: 99999upx;
+  }
+  &-t{
+    border-top-left-radius: 0.25rem; /* 4px */
+    border-top-right-radius: 0.25rem; /* 4px */
+    
+    &-2xl{
+      border-top-left-radius: 1rem; /* 4px */
+      border-top-right-radius: 1rem; /* 4px */
+    }
+  }
+}
+
+/* border */
+.border{
+  border-width: 2upx;
+  &-2{
+    border-width: 4upx;
+  }
+
+  /* border-style */
+  &-solid{
+    border-style: solid;
+  }
+  /* border-color */
+  &-gray{
+    &-300{
+      border-color: rgb(209, 213, 219);
+    }
+  }
+  &-primary{
+    border-color: #1b91fe;
+  }
+}
+
+/* flex */
+.block{
+  display: block;
+}
+.flex{
+  display: flex;
+}
+.items-center{
+  align-items: center;
+}
+.justify{
+  &-between{
+    justify-content: space-between;
+  }
+  &-end{
+    justify-content: flex-end;
+  }
+}
+.flex-1{
+  flex: 1 1 0%;
+}
+
+/* grid */
+.grid{
+  display: grid;
+}
+.gap-4{
+  gap: 1rem
+}
+.grid-cols{
+  &-2{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  &-3{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* overflow */
+.overflow{
+  &-hidden{
+    overflow: hidden;
+  }
+  &-auto{
+    overflow: auto;
+  }
+}
+
+/* object-fit */
+.object{
+  &-contain{
+    object-fit: contain;
+  }
+}
+
+/* aspect-ratio */
+.aspect-square{
+  aspect-ratio: 1 / 1;
+}
+
+/* poly-class 聚合类 */
+.split-line{
+  background: #f2f2f2;
+  height: 4upx;
+}
