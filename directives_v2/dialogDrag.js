@@ -1,6 +1,8 @@
 import Vue from 'vue'
 
-// v-dialogDrag: 弹窗拖拽属性
+/** v-dialogDrag 弹窗拖拽
+ * 1. 适用于element ui的el-dialog组件
+ */
 Vue.directive('dialogDrag', {
   bind(el, binding, vnode, oldVnode) {
     const dialogHeaderEl = el.querySelector('.el-dialog__header')

@@ -1,3 +1,20 @@
+/** 弹窗内容
+ * 1. 弹窗内容由data的dom决定，需要传入一个组件选项对象（引入的vue文件）
+ * 2. 弹窗内容组件 接收的props
+ *    1) option：data内的option属性，可以传入任意在弹窗内容组件中会使用到的数据
+ *    2) that: 调用$dialogPop方法的组件实例对象
+ * 3. 弹窗内容组件 注入的方法
+ *    1) Cancel: 调用后关闭弹窗，触发cancelClick钩子
+ *    2) Confirm: 调用后触发saveClick钩子
+ *    3) controlConfirmLoad: 对象，包含start和end两个方法，控制默认确定按钮的loading状态
+ *    4) CustomBtn: 调用后触发customSave钩子
+ * 4. 使用注意和建议
+ *    1) 弹窗内容组件的状态，方法和逻辑尽量在组件内部完成，与外部组件去耦合。不建议在customSave，cancelClick等钩子内直接对组件实例进行过于复杂的操作。
+ *    2) 建议使用自定义按钮（isShowFootBtn = false），确认并关闭：customBtn + Cancel; 取消: Cancel
+ *    3) 点击右上方关闭按钮同样会触发cancelClick
+ */
+
+
 import Vue from 'vue'
 import DialogPopOptionObject from './index.vue'
 // DialogPopOptionObject: 组件选项对象
@@ -23,6 +40,7 @@ function handleDestroy(){
     }
   })
 }
+
 /** 新增实例方法
  * 
  * @param {配置对象} data
@@ -40,14 +58,17 @@ function handleDestroy(){
  */
 const dialogPopFn = function (data) {
   if (!data.dom) { console.log('弹窗参数缺失！'); return false }
-  const prevInstance = instanceArray[instanceArray.length -1]
-  if(!data.coexist){
+  if(data.coexist === undefined)data.coexist = true // coexist 默认为true
+  if(!data.coexist && instanceArray.length){
+    const prevInstance = instanceArray[instanceArray.length -1]
     prevInstance.visible = false
   }
   const mergedData = {
     ...data,
     caller: this // 指向callerComponentInstance
   }
+
+  // 传入new DialogPopConstructor()的对象会与最后生成的实例的data、methods等合并
   const instance = new DialogPopConstructor({
     parent: this,
     data: mergedData,
@@ -64,20 +85,3 @@ export default {
     Vue.prototype.$dialogPop = dialogPopFn
   }
 }
-
-
-/* 弹窗内容 */
-// 1. 弹窗内容由data的dom决定，需要传入一个组件选项对象（引入的vue文件）
-// 2. 弹窗内容组件 接收的props
-//    1) option：data内的option属性，可以传入任意在弹窗内容组件中会使用到的数据
-//    2) that: 调用$dialogPop方法的组件实例对象
-// 3. 弹窗内容组件 注入的方法
-//    1) Cancel: 调用后关闭弹窗，触发cancelClick钩子
-//    2) Confirm: 调用后触发saveClick钩子
-//    3) controlConfirmLoad: 对象，包含start和end两个方法，控制默认确定按钮的loading状态
-//    4) CustomBtn: 调用后触发customSave钩子
-// 4. 使用注意和建议
-//    1) 弹窗内容组件的状态，方法和逻辑尽量在组件内部完成，与外部组件去耦合。不建议在customSave，cancelClick等钩子内直接对组件实例进行过于复杂的操作。
-//    2) 建议使用自定义按钮（isShowFootBtn = false），确认并关闭：customBtn + Cancel; 取消: Cancel
-//    2) 点击右上方关闭按钮同样会触发cancelClick
-

@@ -2,8 +2,8 @@
   <!-- 封装弹框 -->
   <div class="FunctionalDialogPop">
       <!-- custom-class="FunctionalDialogPop"  -->
+      <!-- top="1vh"  -->
     <el-dialog 
-      top="1vh" 
       v-dialogDrag
       :title="title" 
       :visible.sync="visible" 
