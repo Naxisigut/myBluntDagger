@@ -22,3 +22,9 @@ export const copyText = (str: string) => {
 export const call = (phoneNumber: string) => {
   window.location.href = "tel://" + phoneNumber
 }
+
+/** 阻塞指定时间
+ * 
+ * @param ms 时间，单位毫秒 
+ */
+export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
