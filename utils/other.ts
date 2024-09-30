@@ -44,3 +44,21 @@ export const jsonLog = (obj: any, tag: string) => {
     output
   );
 }
+
+/** 格式化时间
+ * 
+ */
+export const formatTime = (date: Date, formatStr: string) => {
+  const formatType = {
+    Y: date.getFullYear(),
+    M: date.getMonth() + 1,
+    D: date.getDate(),
+    h: date.getHours(),
+    m: date.getMinutes(),
+    s: date.getSeconds(),
+  }
+  return formatStr.replace(
+    /Y+|M+|D+|h+|m+|s+/g,
+    target => (new Array(target.length).join('0') + formatType[target[0]]).substr(-target.length)
+  )
+}
